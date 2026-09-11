@@ -54,13 +54,37 @@ const addPayment = async (req, res) => {
       });
     }
 
-    // Generate receipt number
-    const paymentCount = await Payment.countDocuments();
+    // ==========================================
+    // GENERATE SAFE RECEIPT NUMBER
+    // ==========================================
+
+    // Find the payment with the highest receipt number
+    const lastPayment = await Payment.findOne({
+      receiptNumber: /^REC-\d+$/
+    }).sort({
+      receiptNumber: -1
+    });
+
+    let nextReceiptNumber = 1;
+
+    if (lastPayment?.receiptNumber) {
+      const lastNumber = parseInt(
+        lastPayment.receiptNumber.replace("REC-", ""),
+        10
+      );
+
+      if (!isNaN(lastNumber)) {
+        nextReceiptNumber = lastNumber + 1;
+      }
+    }
 
     const receiptNumber =
-      `REC-${String(paymentCount + 1).padStart(4, "0")}`;
+      `REC-${String(nextReceiptNumber).padStart(4, "0")}`;
 
-    // Create payment
+    // ==========================================
+    // CREATE PAYMENT
+    // ==========================================
+
     const payment = await Payment.create({
       studentId,
       amount,
@@ -194,6 +218,11 @@ const getAllPayments = async (req, res) => {
   }
 };
 
+
+// ==========================================
+// DELETE PAYMENT
+// ==========================================
+
 const deletePayment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -211,8 +240,12 @@ const deletePayment = async (req, res) => {
     res.json({
       message: "Payment deleted successfully."
     });
+
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Delete payment error:",
+      error.message
+    );
 
     res.status(500).json({
       message: "Unable to delete payment."
@@ -220,6 +253,10 @@ const deletePayment = async (req, res) => {
   }
 };
 
+
+// ==========================================
+// EXPORT
+// ==========================================
 
 module.exports = {
   addPayment,
