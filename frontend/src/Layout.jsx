@@ -81,13 +81,13 @@ function Layout({ staff, onLogout }) {
 
           <div className="flex items-center gap-3">
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
-              <GraduationCap size={25} />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-white shadow-lg shadow-indigo-200">
+              <img src="/education.png"/>
             </div>
 
             <div>
               <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                TuitionHub
+                Education Center
               </h1>
 
               <p className="text-xs text-slate-400">

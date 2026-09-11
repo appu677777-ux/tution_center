@@ -214,7 +214,7 @@ function Dashboard({ staff }) {
           </p>
 
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Good morning 👋
+            Overall Dashboard
           </h2>
 
           <p className="mt-1 text-sm text-slate-500">
