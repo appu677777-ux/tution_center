@@ -26,9 +26,8 @@ function AddStudent() {
     house: "",
     place: "",
     district: "",
-    academicYear: "",
-    course: "",
-    batch: "",
+    standard: "",
+    division: "",
     admissionDate: "",
     totalFee: "",
     notes: ""
@@ -48,31 +47,39 @@ function AddStudent() {
 
     setError("");
 
-    // Basic validation
+    // =========================
+    // VALIDATION
+    // =========================
+
     if (
-      !form.studentId ||
-      !form.admissionNumber ||
-      !form.name ||
-      !form.parentName ||
-      !form.parentPhone ||
-      !form.academicYear ||
-      !form.course ||
-      !form.batch ||
+      !form.studentId.trim() ||
+      !form.admissionNumber.trim() ||
+      !form.name.trim() ||
+      !form.parentName.trim() ||
+      !form.parentPhone.trim() ||
+      !form.standard ||
+      !form.division ||
       form.totalFee === ""
     ) {
-      setError(
-        "Please fill in all required fields."
-      );
+      setError("Please fill in all required fields.");
       return;
     }
 
     try {
       setLoading(true);
 
+      // =========================
+      // STUDENT DATA
+      // =========================
+
       const studentData = {
         studentId: form.studentId.trim(),
-        admissionNumber: form.admissionNumber.trim(),
-        name: form.name.trim(),
+
+        admissionNumber:
+          form.admissionNumber.trim(),
+
+        name:
+          form.name.trim(),
 
         dateOfBirth:
           form.dateOfBirth || undefined,
@@ -95,14 +102,11 @@ function AddStudent() {
           district: form.district.trim()
         },
 
-        academicYear:
-          form.academicYear.trim(),
+        // CLASS
+        standard: form.standard,
 
-        course:
-          form.course.trim(),
-
-        batch:
-          form.batch.trim(),
+        // DIVISION
+        division: form.division,
 
         admissionDate:
           form.admissionDate || undefined,
@@ -114,15 +118,24 @@ function AddStudent() {
           form.notes.trim() || undefined
       };
 
+      // =========================
+      // CREATE STUDENT
+      // =========================
+
       await api("/students", {
         method: "POST",
         body: JSON.stringify(studentData)
       });
 
-      // Return to students page after successful save
+      // =========================
+      // SUCCESS
+      // =========================
+
       navigate("/students");
 
     } catch (error) {
+      console.error("Add student error:", error);
+
       setError(
         error.message ||
         "Unable to create student."
@@ -135,7 +148,10 @@ function AddStudent() {
   return (
     <div className="min-h-screen bg-slate-50">
 
+      {/* ================================= */}
       {/* HEADER */}
+      {/* ================================= */}
+
       <header className="border-b border-slate-200 bg-white">
 
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
@@ -143,6 +159,7 @@ function AddStudent() {
           <div className="flex items-center gap-4">
 
             <button
+              type="button"
               onClick={() => navigate("/students")}
               className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
             >
@@ -167,19 +184,30 @@ function AddStudent() {
 
       </header>
 
+
+      {/* ================================= */}
       {/* CONTENT */}
+      {/* ================================= */}
+
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
+        {/* ================================= */}
         {/* ERROR */}
+        {/* ================================= */}
+
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
             {error}
           </div>
         )}
 
+
         <form onSubmit={handleSubmit}>
 
+          {/* ================================= */}
           {/* BASIC INFORMATION */}
+          {/* ================================= */}
+
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -191,6 +219,7 @@ function AddStudent() {
                 </div>
 
                 <div>
+
                   <h2 className="font-semibold text-slate-900">
                     Basic Information
                   </h2>
@@ -198,15 +227,18 @@ function AddStudent() {
                   <p className="text-xs text-slate-400">
                     Enter the student's identification details.
                   </p>
+
                 </div>
 
               </div>
 
             </div>
 
+
             <div className="grid gap-5 p-6 md:grid-cols-2 lg:grid-cols-3">
 
               {/* STUDENT ID */}
+
               <Input
                 label="Student ID"
                 name="studentId"
@@ -216,7 +248,9 @@ function AddStudent() {
                 required
               />
 
+
               {/* ADMISSION NUMBER */}
+
               <Input
                 label="Admission Number"
                 name="admissionNumber"
@@ -226,7 +260,9 @@ function AddStudent() {
                 required
               />
 
+
               {/* NAME */}
+
               <Input
                 label="Student Name"
                 name="name"
@@ -236,7 +272,9 @@ function AddStudent() {
                 required
               />
 
+
               {/* DOB */}
+
               <Input
                 label="Date of Birth"
                 type="date"
@@ -245,7 +283,9 @@ function AddStudent() {
                 onChange={handleChange}
               />
 
+
               {/* GENDER */}
+
               <Select
                 label="Gender"
                 name="gender"
@@ -258,7 +298,9 @@ function AddStudent() {
                 ]}
               />
 
+
               {/* PHONE */}
+
               <Input
                 label="Student Phone"
                 name="phone"
@@ -271,7 +313,11 @@ function AddStudent() {
 
           </div>
 
+
+          {/* ================================= */}
           {/* PARENT INFORMATION */}
+          {/* ================================= */}
+
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -286,7 +332,10 @@ function AddStudent() {
 
             </div>
 
+
             <div className="grid gap-5 p-6 md:grid-cols-2">
+
+              {/* PARENT NAME */}
 
               <Input
                 label="Parent Name"
@@ -296,6 +345,9 @@ function AddStudent() {
                 placeholder="Enter parent name"
                 required
               />
+
+
+              {/* PARENT PHONE */}
 
               <Input
                 label="Parent Phone"
@@ -310,7 +362,11 @@ function AddStudent() {
 
           </div>
 
+
+          {/* ================================= */}
           {/* ADDRESS */}
+          {/* ================================= */}
+
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -325,7 +381,10 @@ function AddStudent() {
 
             </div>
 
+
             <div className="grid gap-5 p-6 md:grid-cols-3">
+
+              {/* HOUSE */}
 
               <Input
                 label="House / Building"
@@ -335,6 +394,9 @@ function AddStudent() {
                 placeholder="House name"
               />
 
+
+              {/* PLACE */}
+
               <Input
                 label="Place"
                 name="place"
@@ -342,6 +404,9 @@ function AddStudent() {
                 onChange={handleChange}
                 placeholder="Place"
               />
+
+
+              {/* DISTRICT */}
 
               <Input
                 label="District"
@@ -355,7 +420,11 @@ function AddStudent() {
 
           </div>
 
+
+          {/* ================================= */}
           {/* ACADEMIC INFORMATION */}
+          {/* ================================= */}
+
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -365,39 +434,48 @@ function AddStudent() {
               </h2>
 
               <p className="mt-1 text-xs text-slate-400">
-                Course and batch details.
+                Select the student's class and division.
               </p>
 
             </div>
 
+
             <div className="grid gap-5 p-6 md:grid-cols-3">
 
-              <Input
-                label="Academic Year"
-                name="academicYear"
-                value={form.academicYear}
+              {/* CLASS */}
+
+              <Select
+                label="Class"
+                name="standard"
+                value={form.standard}
                 onChange={handleChange}
-                placeholder="2026-2027"
+                options={[
+                  "8",
+                  "9",
+                  "10"
+                ]}
                 required
               />
 
-              <Input
-                label="Course"
-                name="course"
-                value={form.course}
+
+              {/* DIVISION */}
+
+              <Select
+                label="Division"
+                name="division"
+                value={form.division}
                 onChange={handleChange}
-                placeholder="BCA"
+                options={[
+                  "A",
+                  "B",
+                  "C",
+                  "D"
+                ]}
                 required
               />
 
-              <Input
-                label="Batch"
-                name="batch"
-                value={form.batch}
-                onChange={handleChange}
-                placeholder="Batch A"
-                required
-              />
+
+              {/* ADMISSION DATE */}
 
               <Input
                 label="Admission Date"
@@ -411,7 +489,11 @@ function AddStudent() {
 
           </div>
 
-          {/* FEE */}
+
+          {/* ================================= */}
+          {/* FEE INFORMATION */}
+          {/* ================================= */}
+
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -421,24 +503,33 @@ function AddStudent() {
               </h2>
 
               <p className="mt-1 text-xs text-slate-400">
-                Set the total course fee. Payments will be recorded separately.
+                Set the total fee for the student.
               </p>
 
             </div>
+
 
             <div className="p-6">
 
               <div className="max-w-md">
 
                 <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Total Fee <span className="text-red-500">*</span>
+
+                  Total Fee
+
+                  <span className="text-red-500">
+                    {" "}*
+                  </span>
+
                 </label>
+
 
                 <div className="relative">
 
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-slate-400">
                     ₹
                   </span>
+
 
                   <input
                     type="number"
@@ -460,7 +551,11 @@ function AddStudent() {
 
           </div>
 
+
+          {/* ================================= */}
           {/* NOTES */}
+          {/* ================================= */}
+
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -470,6 +565,7 @@ function AddStudent() {
               </h2>
 
             </div>
+
 
             <div className="p-6">
 
@@ -486,8 +582,14 @@ function AddStudent() {
 
           </div>
 
+
+          {/* ================================= */}
           {/* BUTTONS */}
+          {/* ================================= */}
+
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+            {/* CANCEL */}
 
             <button
               type="button"
@@ -496,6 +598,9 @@ function AddStudent() {
             >
               Cancel
             </button>
+
+
+            {/* SAVE */}
 
             <button
               type="submit"
@@ -509,11 +614,13 @@ function AddStudent() {
                     size={18}
                     className="animate-spin"
                   />
+
                   Saving...
                 </>
               ) : (
                 <>
                   <Save size={18} />
+
                   Save Student
                 </>
               )}
@@ -531,9 +638,9 @@ function AddStudent() {
 }
 
 
-/* ============================= */
+/* ================================= */
 /* REUSABLE INPUT */
-/* ============================= */
+/* ================================= */
 
 function Input({
   label,
@@ -559,6 +666,7 @@ function Input({
 
       </label>
 
+
       <input
         type={type}
         name={name}
@@ -574,34 +682,46 @@ function Input({
 }
 
 
-/* ============================= */
+/* ================================= */
 /* REUSABLE SELECT */
-/* ============================= */
+/* ================================= */
 
 function Select({
   label,
   name,
   value,
   onChange,
-  options
+  options,
+  required = false
 }) {
   return (
     <div>
 
       <label className="mb-2 block text-sm font-medium text-slate-700">
+
         {label}
+
+        {required && (
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        )}
+
       </label>
+
 
       <select
         name={name}
         value={value}
         onChange={onChange}
+        required={required}
         className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
       >
 
         <option value="">
           Select {label}
         </option>
+
 
         {options.map((option) => (
           <option
@@ -617,5 +737,6 @@ function Select({
     </div>
   );
 }
+
 
 export default AddStudent;

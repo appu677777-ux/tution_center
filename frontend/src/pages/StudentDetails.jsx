@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   User,
-  Phone,
   MapPin,
   GraduationCap,
   IndianRupee,
@@ -23,6 +22,10 @@ function StudentDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ==========================================
+  // LOAD STUDENT
+  // ==========================================
+
   useEffect(() => {
     loadStudent();
   }, [id]);
@@ -32,66 +35,99 @@ function StudentDetails() {
       setLoading(true);
       setError("");
 
-      // Get student details
-      const studentResponse = await api(`/students/${id}`);
+      // ========================================
+      // GET STUDENT
+      // ========================================
 
-      // IMPORTANT:
-      // Supports both:
-      // { student: {...} }
-      // and
-      // {...}
+      const studentResponse =
+        await api(`/students/${id}`);
+
       const studentData =
-        studentResponse.student || studentResponse;
+        studentResponse.student ||
+        studentResponse;
 
       setStudent(studentData);
 
-      // Get fee details
-      const paymentResponse = await api(
-        `/payments/student/${id}`
-      );
+      // ========================================
+      // GET PAYMENT / FEE DETAILS
+      // ========================================
+
+      const paymentResponse =
+        await api(
+          `/payments/student/${id}`
+        );
 
       setFeeSummary(
         paymentResponse.feeSummary || {
-          totalFee: studentData.totalFee || 0,
+          totalFee:
+            studentData.totalFee || 0,
+
           totalPaid: 0,
-          balance: studentData.totalFee || 0
+
+          balance:
+            studentData.totalFee || 0
         }
       );
+
     } catch (err) {
-      console.error(err);
+      console.error(
+        "Load student details error:",
+        err
+      );
 
       setError(
-        err.message || "Failed to load student details"
+        err.message ||
+        "Failed to load student details"
       );
+
     } finally {
       setLoading(false);
     }
   };
 
+
+  // ==========================================
+  // DEACTIVATE STUDENT
+  // ==========================================
+
   const handleDeactivate = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to deactivate this student?"
-    );
+
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to deactivate this student?"
+      );
 
     if (!confirmed) return;
 
     try {
+
       await api(`/students/${id}`, {
         method: "DELETE"
       });
 
       navigate("/students");
+
     } catch (err) {
+
       setError(
-        err.message || "Unable to deactivate student"
+        err.message ||
+        "Unable to deactivate student"
       );
     }
   };
 
+
+  // ==========================================
+  // LOADING
+  // ==========================================
+
   if (loading) {
+
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
+
         <div className="text-center">
+
           <Loader2
             size={35}
             className="mx-auto animate-spin text-indigo-600"
@@ -100,32 +136,54 @@ function StudentDetails() {
           <p className="mt-3 text-sm text-slate-500">
             Loading student details...
           </p>
+
         </div>
+
       </div>
     );
   }
 
+
+  // ==========================================
+  // STUDENT NOT FOUND
+  // ==========================================
+
   if (!student) {
+
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
+
         <div className="text-center">
+
           <h2 className="text-xl font-bold text-slate-900">
             Student not found
           </h2>
 
           <button
-            onClick={() => navigate("/students")}
+            type="button"
+            onClick={() =>
+              navigate("/students")
+            }
             className="mt-4 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white"
           >
             Back to Students
           </button>
+
         </div>
+
       </div>
     );
   }
 
+
+  // ==========================================
+  // FEE CALCULATION
+  // ==========================================
+
   const totalFee = Number(
-    feeSummary?.totalFee ?? student.totalFee ?? 0
+    feeSummary?.totalFee ??
+    student.totalFee ??
+    0
   );
 
   const totalPaid = Number(
@@ -134,33 +192,50 @@ function StudentDetails() {
 
   const balance = Number(
     feeSummary?.balance ??
-      Math.max(totalFee - totalPaid, 0)
+    Math.max(
+      totalFee - totalPaid,
+      0
+    )
   );
 
   const progress =
     totalFee > 0
       ? Math.min(
-          Math.round((totalPaid / totalFee) * 100),
+          Math.round(
+            (totalPaid / totalFee) * 100
+          ),
           100
         )
       : 0;
 
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
     <div className="space-y-6">
 
+      {/* ====================================== */}
       {/* HEADER */}
+      {/* ====================================== */}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
         <div className="flex items-center gap-4">
 
           <button
-            onClick={() => navigate("/students")}
+            type="button"
+            onClick={() =>
+              navigate("/students")
+            }
             className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 hover:bg-slate-50"
           >
             <ArrowLeft size={20} />
           </button>
 
           <div>
+
             <p className="text-sm font-medium text-indigo-600">
               Students
             </p>
@@ -168,62 +243,106 @@ function StudentDetails() {
             <h1 className="text-2xl font-bold text-slate-900">
               Student Details
             </h1>
+
           </div>
 
         </div>
 
+
+        {/* ACTIONS */}
+
         <div className="flex flex-wrap gap-2">
 
+          {/* PAYMENT HISTORY */}
+
           <button
+            type="button"
             onClick={() =>
-              navigate(`/students/${id}/payments`)
+              navigate(
+                `/students/${id}/payments`
+              )
             }
             className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
           >
+
             <IndianRupee size={17} />
+
             Payment History
+
           </button>
 
+
+          {/* EDIT */}
+
           <button
+            type="button"
             onClick={() =>
-              navigate(`/students/${id}/edit`)
+              navigate(
+                `/students/${id}/edit`
+              )
             }
             className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           >
+
             <Edit size={17} />
+
             Edit
+
           </button>
 
+
+          {/* DEACTIVATE */}
+
           {student.status === "Active" && (
+
             <button
+              type="button"
               onClick={handleDeactivate}
               className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
             >
+
               <UserX size={17} />
+
               Deactivate
+
             </button>
+
           )}
 
         </div>
+
       </div>
 
+
+      {/* ====================================== */}
       {/* ERROR */}
+      {/* ====================================== */}
+
       {error && (
+
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
         </div>
+
       )}
 
+
+      {/* ====================================== */}
       {/* STUDENT PROFILE */}
+      {/* ====================================== */}
+
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
         <div className="flex items-center gap-5">
 
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-50 text-3xl font-bold text-indigo-600">
+
             {student.name
               ?.charAt(0)
               ?.toUpperCase()}
+
           </div>
+
 
           <div>
 
@@ -233,24 +352,47 @@ function StudentDetails() {
                 {student.name || "-"}
               </h2>
 
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">
-                {student.status || "Active"}
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  student.status ===
+                  "Active"
+                    ? "bg-emerald-50 text-emerald-600"
+                    : student.status ===
+                      "Completed"
+                    ? "bg-blue-50 text-blue-600"
+                    : student.status ===
+                      "Transferred"
+                    ? "bg-amber-50 text-amber-600"
+                    : "bg-slate-100 text-slate-500"
+                }`}
+              >
+                {student.status ||
+                  "Active"}
               </span>
 
             </div>
 
+
             <p className="mt-2 text-sm text-slate-500">
+
               Student ID:
+
               <span className="ml-2 font-semibold text-slate-700">
                 {student.studentId || "-"}
               </span>
+
             </p>
 
+
             <p className="mt-1 text-sm text-slate-500">
+
               Admission Number:
+
               <span className="ml-2 font-semibold text-slate-700">
-                {student.admissionNumber || "-"}
+                {student.admissionNumber ||
+                  "-"}
               </span>
+
             </p>
 
           </div>
@@ -259,10 +401,15 @@ function StudentDetails() {
 
       </div>
 
+
+      {/* ====================================== */}
       {/* PERSONAL + PARENT */}
+      {/* ====================================== */}
+
       <div className="grid gap-6 lg:grid-cols-2">
 
-        {/* PERSONAL INFORMATION */}
+        {/* PERSONAL */}
+
         <InfoCard
           title="Personal Information"
           icon={User}
@@ -277,26 +424,32 @@ function StudentDetails() {
             label="Date of Birth"
             value={
               student.dateOfBirth
-                ? new Date(
+                ? formatDate(
                     student.dateOfBirth
-                  ).toLocaleDateString("en-IN")
+                  )
                 : "-"
             }
           />
 
           <InfoRow
             label="Gender"
-            value={student.gender || "-"}
+            value={
+              student.gender || "-"
+            }
           />
 
           <InfoRow
             label="Student Phone"
-            value={student.phone || "-"}
+            value={
+              student.phone || "-"
+            }
           />
 
         </InfoCard>
 
-        {/* PARENT INFORMATION */}
+
+        {/* PARENT */}
+
         <InfoCard
           title="Parent / Guardian"
           icon={User}
@@ -304,56 +457,72 @@ function StudentDetails() {
 
           <InfoRow
             label="Parent Name"
-            value={student.parentName}
+            value={
+              student.parentName
+            }
           />
 
           <InfoRow
             label="Parent Phone"
-            value={student.parentPhone}
+            value={
+              student.parentPhone
+            }
           />
 
         </InfoCard>
 
       </div>
 
+
+      {/* ====================================== */}
       {/* ACADEMIC + ADDRESS */}
+      {/* ====================================== */}
+
       <div className="grid gap-6 lg:grid-cols-2">
 
+        {/* ==================================== */}
         {/* ACADEMIC */}
+        {/* ==================================== */}
+
         <InfoCard
           title="Academic Information"
           icon={GraduationCap}
         >
 
           <InfoRow
-            label="Academic Year"
-            value={student.academicYear}
+            label="Class"
+            value={
+              student.standard
+                ? `Class ${student.standard}`
+                : "-"
+            }
           />
 
           <InfoRow
-            label="Course"
-            value={student.course}
-          />
-
-          <InfoRow
-            label="Batch"
-            value={student.batch}
+            label="Division"
+            value={
+              student.division || "-"
+            }
           />
 
           <InfoRow
             label="Admission Date"
             value={
               student.admissionDate
-                ? new Date(
+                ? formatDate(
                     student.admissionDate
-                  ).toLocaleDateString("en-IN")
+                  )
                 : "-"
             }
           />
 
         </InfoCard>
 
+
+        {/* ==================================== */}
         {/* ADDRESS */}
+        {/* ==================================== */}
+
         <InfoCard
           title="Address"
           icon={MapPin}
@@ -362,21 +531,24 @@ function StudentDetails() {
           <InfoRow
             label="House / Building"
             value={
-              student.address?.house || "-"
+              student.address?.house ||
+              "-"
             }
           />
 
           <InfoRow
             label="Place"
             value={
-              student.address?.place || "-"
+              student.address?.place ||
+              "-"
             }
           />
 
           <InfoRow
             label="District"
             value={
-              student.address?.district || "-"
+              student.address?.district ||
+              "-"
             }
           />
 
@@ -384,7 +556,11 @@ function StudentDetails() {
 
       </div>
 
+
+      {/* ====================================== */}
       {/* FEE INFORMATION */}
+      {/* ====================================== */}
+
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
         <div className="flex items-center justify-between">
@@ -394,8 +570,11 @@ function StudentDetails() {
             <div className="flex items-center gap-3">
 
               <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+
                 <IndianRupee size={21} />
+
               </div>
+
 
               <div>
 
@@ -413,8 +592,14 @@ function StudentDetails() {
 
           </div>
 
+
+          {/* RECORD PAYMENT */}
+
           <button
-            onClick={() => navigate("/payments")}
+            type="button"
+            onClick={() =>
+              navigate("/payments")
+            }
             className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
           >
             Record Payment
@@ -422,7 +607,11 @@ function StudentDetails() {
 
         </div>
 
+
+        {/* ==================================== */}
         {/* FEE CARDS */}
+        {/* ==================================== */}
+
         <div className="mt-6 grid gap-4 md:grid-cols-3">
 
           <FeeBox
@@ -445,7 +634,11 @@ function StudentDetails() {
 
         </div>
 
+
+        {/* ==================================== */}
         {/* PROGRESS */}
+        {/* ==================================== */}
+
         <div className="mt-7">
 
           <div className="mb-2 flex justify-between">
@@ -460,6 +653,7 @@ function StudentDetails() {
 
           </div>
 
+
           <div className="h-3 overflow-hidden rounded-full bg-slate-100">
 
             <div
@@ -473,10 +667,15 @@ function StudentDetails() {
 
         </div>
 
+
+        {/* ==================================== */}
         {/* PAYMENT STATUS */}
+        {/* ==================================== */}
+
         <div className="mt-6">
 
-          {balance === 0 && totalFee > 0 ? (
+          {balance === 0 &&
+          totalFee > 0 ? (
 
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
               ✓ Fee fully paid
@@ -485,9 +684,13 @@ function StudentDetails() {
           ) : totalPaid > 0 ? (
 
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+
               Partial payment — ₹
-              {balance.toLocaleString("en-IN")}
+              {balance.toLocaleString(
+                "en-IN"
+              )}
               {" "}remaining
+
             </div>
 
           ) : (
@@ -502,8 +705,13 @@ function StudentDetails() {
 
       </div>
 
+
+      {/* ====================================== */}
       {/* NOTES */}
+      {/* ====================================== */}
+
       {student.notes && (
+
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
           <h2 className="font-semibold text-slate-900">
@@ -515,13 +723,40 @@ function StudentDetails() {
           </p>
 
         </div>
+
       )}
 
     </div>
   );
 }
 
-/* INFO CARD */
+
+// ==========================================
+// DATE FORMATTER
+// ==========================================
+
+function formatDate(value) {
+  try {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "-";
+    }
+
+    return date.toLocaleDateString(
+      "en-IN"
+    );
+
+  } catch {
+    return "-";
+  }
+}
+
+
+// ==========================================
+// INFO CARD
+// ==========================================
+
 function InfoCard({
   title,
   icon: Icon,
@@ -533,7 +768,9 @@ function InfoCard({
       <div className="flex items-center gap-3 border-b border-slate-100 px-6 py-5">
 
         <div className="rounded-xl bg-indigo-50 p-2.5 text-indigo-600">
+
           <Icon size={19} />
+
         </div>
 
         <h2 className="font-semibold text-slate-900">
@@ -542,15 +779,22 @@ function InfoCard({
 
       </div>
 
+
       <div className="divide-y divide-slate-100 px-6">
+
         {children}
+
       </div>
 
     </div>
   );
 }
 
-/* INFO ROW */
+
+// ==========================================
+// INFO ROW
+// ==========================================
+
 function InfoRow({
   label,
   value
@@ -570,16 +814,26 @@ function InfoRow({
   );
 }
 
-/* FEE BOX */
+
+// ==========================================
+// FEE BOX
+// ==========================================
+
 function FeeBox({
   label,
   amount,
   type
 }) {
+
   const styles = {
-    total: "border-slate-200 bg-slate-50 text-slate-900",
-    paid: "border-emerald-100 bg-emerald-50 text-emerald-700",
-    balance: "border-amber-200 bg-amber-50 text-amber-700"
+    total:
+      "border-slate-200 bg-slate-50 text-slate-900",
+
+    paid:
+      "border-emerald-100 bg-emerald-50 text-emerald-700",
+
+    balance:
+      "border-amber-200 bg-amber-50 text-amber-700"
   };
 
   return (
@@ -592,11 +846,15 @@ function FeeBox({
       </p>
 
       <p className="mt-2 text-2xl font-bold">
-        ₹{Number(amount || 0).toLocaleString("en-IN")}
+        ₹
+        {Number(
+          amount || 0
+        ).toLocaleString("en-IN")}
       </p>
 
     </div>
   );
 }
+
 
 export default StudentDetails;

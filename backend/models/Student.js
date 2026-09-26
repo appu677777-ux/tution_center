@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 // ======================================================
 // MONTHLY FEE SCHEMA
-// Used for 8th & 9th
+// Used for Class 8 & 9
 // ======================================================
 
 const monthlyFeeSchema = new mongoose.Schema(
@@ -55,9 +55,10 @@ const monthlyFeeSchema = new mongoose.Schema(
   }
 );
 
+
 // ======================================================
 // INSTALLMENT SCHEMA
-// Used for 10th
+// Used for Class 10
 // ======================================================
 
 const installmentSchema = new mongoose.Schema(
@@ -110,6 +111,7 @@ const installmentSchema = new mongoose.Schema(
   }
 );
 
+
 // ======================================================
 // FEE STRUCTURE
 // ======================================================
@@ -153,12 +155,17 @@ const feeStructureSchema = new mongoose.Schema(
   }
 );
 
+
 // ======================================================
 // STUDENT SCHEMA
 // ======================================================
 
 const studentSchema = new mongoose.Schema(
   {
+    // ==================================================
+    // STUDENT IDENTIFICATION
+    // ==================================================
+
     studentId: {
       type: String,
       required: true,
@@ -179,6 +186,11 @@ const studentSchema = new mongoose.Schema(
       trim: true
     },
 
+
+    // ==================================================
+    // PERSONAL INFORMATION
+    // ==================================================
+
     dateOfBirth: {
       type: Date
     },
@@ -197,6 +209,11 @@ const studentSchema = new mongoose.Schema(
       trim: true
     },
 
+
+    // ==================================================
+    // PARENT / GUARDIAN
+    // ==================================================
+
     parentName: {
       type: String,
       required: true,
@@ -209,32 +226,32 @@ const studentSchema = new mongoose.Schema(
       trim: true
     },
 
-    address: {
-      house: String,
-      place: String,
-      district: String
-    },
-
-    academicYear: {
-      type: String,
-      required: true,
-      trim: true
-    },
-
-    course: {
-      type: String,
-      required: true,
-      trim: true
-    },
-
-    batch: {
-      type: String,
-      required: true,
-      trim: true
-    },
 
     // ==================================================
-    // STANDARD
+    // ADDRESS
+    // ==================================================
+
+    address: {
+      house: {
+        type: String,
+        trim: true
+      },
+
+      place: {
+        type: String,
+        trim: true
+      },
+
+      district: {
+        type: String,
+        trim: true
+      }
+    },
+
+
+    // ==================================================
+    // CLASS
+    // Only Class 8, 9 and 10
     // ==================================================
 
     standard: {
@@ -242,20 +259,42 @@ const studentSchema = new mongoose.Schema(
       enum: [
         "8",
         "9",
-        "10",
-        "11",
-        "12"
+        "10"
       ],
-      default: "10"
+      required: true
     },
+
+
+    // ==================================================
+    // DIVISION
+    // ==================================================
+
+    division: {
+      type: String,
+      enum: [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      required: true,
+      uppercase: true,
+      trim: true
+    },
+
+
+    // ==================================================
+    // ADMISSION DATE
+    // ==================================================
 
     admissionDate: {
       type: Date,
       default: Date.now
     },
 
+
     // ==================================================
-    // OLD TOTAL FEE
+    // TOTAL FEE
     // Kept for backward compatibility
     // ==================================================
 
@@ -265,12 +304,14 @@ const studentSchema = new mongoose.Schema(
       min: 0
     },
 
+
     // ==================================================
-    // NEW FEE STRUCTURE
+    // FEE STRUCTURE
     // ==================================================
 
     feeStructure: {
       type: feeStructureSchema,
+
       default: () => ({
         type: "custom",
         monthlyAmount: 0,
@@ -279,6 +320,11 @@ const studentSchema = new mongoose.Schema(
         installments: []
       })
     },
+
+
+    // ==================================================
+    // STUDENT STATUS
+    // ==================================================
 
     status: {
       type: String,
@@ -291,15 +337,22 @@ const studentSchema = new mongoose.Schema(
       default: "Active"
     },
 
+
+    // ==================================================
+    // NOTES
+    // ==================================================
+
     notes: {
       type: String,
       trim: true
     }
   },
+
   {
     timestamps: true
   }
 );
+
 
 // ======================================================
 // INDEXES
@@ -310,20 +363,26 @@ studentSchema.index({
 });
 
 studentSchema.index({
-  academicYear: 1
-});
-
-studentSchema.index({
-  batch: 1
-});
-
-studentSchema.index({
   standard: 1
+});
+
+studentSchema.index({
+  division: 1
 });
 
 studentSchema.index({
   phone: 1
 });
+
+studentSchema.index({
+  standard: 1,
+  division: 1
+});
+
+
+// ======================================================
+// EXPORT
+// ======================================================
 
 module.exports =
   mongoose.model(
